@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  output: 'standalone',
+  transpilePackages: ['lucide-react'],
+  experimental: {
+    optimizeCss: true,
+  },
 }
 
 module.exports = nextConfig 
