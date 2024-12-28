@@ -12,6 +12,24 @@ export default function WelcomeSection() {
   const [formData, setFormData] = useAtom(formDataAtom);
   const [, setCurrentSection] = useAtom(currentSectionAtom);
 
+  const welcomeText = `This is a web-based version of YearCompass. YearCompass is a PDF reflection booklet that has been published annually since 2012. The core team is Békéssy László, P. Tóth András, Vigh István.
+
+I'm Yash, a YearCompass fan since 2019 and creator of this unaffiliated web version. I fill out YearCompass during every holiday break to help me close one chapter and plan the next. I hope that this web version will bring these thoughtfully-designed questions to more people in new formats. While I'm not affiliated with their team, I've stayed true to their original questions and added optional AI analysis to help identify patterns in your responses.
+
+I plan to keep updating and improving this through early January. Have a feature request? Write me at michellelu400@gmail.com.
+
+Are my responses private?
+Yes. I don't have any visibility into your responses, so this is your space to reflect. Responses are cached locally on your computer, in case you want to navigate away and come back.
+
+Clear cached responses
+Remove all saved responses from your browser
+
+Clear responses
+What do I need to fill out the booklet?
+A laptop (phone is OK but not recommended), a few hours of uninterrupted focus, and an open and honest mind.
+
+If you don't have a few hours, you can also fill this out in parts -- your responses will be cached on your browser for you, and you can come back anytime.`;
+
   return (
     <div className="max-w-4xl mx-auto bg-white p-8">
       <div className="space-y-8">
