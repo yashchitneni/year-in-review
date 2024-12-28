@@ -23,7 +23,7 @@ export default function WelcomeSection() {
 
         {/* Title */}
         <h1 className={`${crimsonPro.className} text-5xl text-center border-b pb-4`}>
-          Welcome
+          BLASHPHEMY
         </h1>
 
         {/* What is this? */}

@@ -66,7 +66,7 @@ export interface SixSentences {
   specialBecause: string;
 }
 
-export interface YearAheadSection {
+export interface FutureYearSection {
   dreamBig: string;
   yearOverview: YearOverview;
   magicalTriplets: MagicalTriplets;
@@ -86,7 +86,7 @@ export interface ClosingSection {
 
 export interface FormData {
   pastYear: PastYearSection;
-  yearAhead: YearAheadSection;
+  yearAhead: FutureYearSection;
   closing: ClosingSection;
 }
 
@@ -142,18 +142,18 @@ const initialFormData: FormData = {
       betterTomorrow: ''
     },
     magicalTriplets: {
-      loveAboutSelf: ['', '', ''],
-      letGoOf: ['', '', ''],
-      achieveMost: ['', '', ''],
-      pillarsInRoughTimes: ['', '', ''],
-      dareToDiscover: ['', '', ''],
-      sayNoTo: ['', '', ''],
-      surroundingsCozy: ['', '', ''],
-      morningRoutine: ['', '', ''],
-      pamperSelf: ['', '', ''],
-      placesToVisit: ['', '', ''],
-      connectWithLovedOnes: ['', '', ''],
-      rewardSuccesses: ['', '', '']
+      loveAboutSelf: [],
+      letGoOf: [],
+      achieveMost: [],
+      pillarsInRoughTimes: [],
+      dareToDiscover: [],
+      sayNoTo: [],
+      surroundingsCozy: [],
+      morningRoutine: [],
+      pamperSelf: [],
+      placesToVisit: [],
+      connectWithLovedOnes: [],
+      rewardSuccesses: []
     },
     sixSentences: {
       notProcrastinate: '',

@@ -18,7 +18,7 @@ export default function YearAheadSection() {
     setFormData((prev) => ({
       ...prev,
       yearAhead: {
-        ...prev.yearAhead,
+        ...(prev.yearAhead || {}),
         [field]: value,
       },
     }));
@@ -511,25 +511,6 @@ export default function YearAheadSection() {
           <h3 className={`${crimsonPro.className} text-2xl`}>
             Congratulations, you've just planned your year!
           </h3>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex justify-between items-center pt-8">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentSection("pastYear")}
-            className="flex items-center gap-2"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous: Past Year
-          </Button>
-          <Button
-            onClick={() => setCurrentSection("closing")}
-            className="flex items-center gap-2"
-          >
-            Next: Closing
-            <ChevronRight className="w-4 h-4" />
-          </Button>
         </div>
       </div>
     </div>
