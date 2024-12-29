@@ -78,7 +78,6 @@ export default function ClosingSection() {
 
         {/* AI Analysis Section */}
         <section className="space-y-4">
-          <h2 className={`${crimsonPro.className} text-3xl`}>AI-Powered Analysis</h2>
           <p className="text-lg">
             Get AI-generated insights from your responses. Choose an analysis framework below:
           </p>
