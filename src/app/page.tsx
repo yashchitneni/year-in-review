@@ -34,10 +34,20 @@ export default function Home() {
         {/* Welcome Card */}
         <Card className="p-8 space-y-6 bg-white shadow-md print:shadow-none">
           
-          <h2 className={`${crimsonPro.className} text-4xl`}>Welcome to Year Compass</h2>
+          <h2 className={`${crimsonPro.className} text-4xl text-center`}>Welcome to Year Compass</h2>
+
+          <h3 className={`${crimsonPro.className} text-3xl`}>What is this?</h3>
 
           <section className="space-y-4">
-          <p>It's a YearCompass—your very own YearCompass, to be exact.</p>
+          <p>It's a {" "}
+              <a 
+                href="https://yearcompass.com/" 
+                className="text-blue-600 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                YearCompass
+              </a> very own YearCompass, to be exact.</p>
           <p>
             It is a booklet that helps you reflect on the past year and plan the next one. With a
             set of carefully selected questions and exercises, YearCompass helps you uncover your
@@ -49,23 +59,11 @@ export default function Home() {
             about the future. You'll be dreaming, planning, and preparing to get the most out of
             the new year.
           </p>
-          <h3 className={`${crimsonPro.className} text-3xl`}>What is this?</h3>
 
           <div className="space-y-4">
+          <h3 className={`${crimsonPro.className} text-3xl`}>Who built this?</h3>
             <p>
-              This is a web-based version of{" "}
-              <a 
-                href="https://yearcompass.com/" 
-                className="text-blue-600 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                YearCompass
-              </a>
-              . YearCompass is a PDF reflection booklet that has been published annually since 2012. 
-            </p>
-            <p>
-              I'm{" "}
+            I'm{" "}
               <a 
                 href="https://yash.is"
                 className="text-blue-600 hover:underline"
@@ -83,27 +81,13 @@ export default function Home() {
               >
                 Ezequiel
               </a>
-              . It really helped me visualize my days and weeks of the year and I enjoyed the practice and still hang my drawing on the back of my bedroom door as a reminder.
+              . It really helped me visualize my days and weeks of the year and I enjoyed the practice and still hang my drawing on the back of my bedroom door as a reminder. I'm not affiliated with the creators and merely putting this up as a project.
             </p>
-
-            <h3 className={`${crimsonPro.className} text-3xl`}>Roadmap</h3>
-            I plan on iterating on this through the 1st week of January.
-            <p>
-              <b>Current Iteration ({new Date().toLocaleDateString()})</b> - Add your responses and print as a PDF or email to yourself
-              <br></br>
-              <b>Next Iteration</b> - Receive AI insights for your responses.
-            </p>
-            <p>
-             
-            </p>
-
-    
 
             <div className="space-y-2">
               <h3 className={`${crimsonPro.className} text-2xl`}>Are my responses private?</h3>
               <p>
-                Yes. I don&apos;t have any visibility into your responses.
-                Responses are cached locally on your computer, in case you want to navigate away and come back.
+                Responses are cached locally on your computer, in case you want to navigate away and come back. I do not store them.
               </p>
             </div>
 
