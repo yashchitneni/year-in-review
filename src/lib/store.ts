@@ -22,13 +22,14 @@ export interface PastYearSection {
   biggestSurprise: string;
   importantForOthers: string;
   biggestCompletion: string;
+  bestMoments: string;
+  threeWords: string[];
   mostProudOf: string;
   peopleWhoInfluenced: string;
   peopleYouInfluenced: string;
   notAccomplished: string;
   bestDiscovery: string;
   mostGratefulFor: string;
-  bestMoments: string;
   biggestAccomplishments: string;
   howAchieved: string;
   whoHelped: string;
@@ -37,40 +38,34 @@ export interface PastYearSection {
   challengeLearnings: string;
   forgiveness: string;
   lettingGo: string;
-  threeWords: string[];
   bookTitle: string;
-  goodbye: string;
 }
 
-export interface MagicalTriplets {
-  loveAboutSelf: string[];
-  letGoOf: string[];
-  achieveMost: string[];
-  pillarsInRoughTimes: string[];
-  dareToDiscover: string[];
-  sayNoTo: string[];
-  surroundingsCozy: string[];
-  morningRoutine: string[];
-  pamperSelf: string[];
-  placesToVisit: string[];
-  connectWithLovedOnes: string[];
-  rewardSuccesses: string[];
-}
-
-export interface SixSentences {
-  notProcrastinate: string;
-  drawEnergyFrom: string;
-  beBravest: string;
-  sayYesTo: string;
-  adviseSelf: string;
-  specialBecause: string;
-}
-
-export interface FutureYearSection {
+export interface YearAheadSection {
   dreamBig: string;
   yearOverview: YearOverview;
-  magicalTriplets: MagicalTriplets;
-  sixSentences: SixSentences;
+  magicalTriplets: {
+    loveAboutSelf: string[];
+    letGoOf: string[];
+    achieveMost: string[];
+    pillarsInRoughTimes: string[];
+    dareToDiscover: string[];
+    sayNoTo: string[];
+    surroundingsCozy: string[];
+    morningRoutine: string[];
+    pamperSelf: string[];
+    placesToVisit: string[];
+    connectWithLovedOnes: string[];
+    rewardSuccesses: string[];
+  };
+  sixSentences: {
+    notProcrastinate: string;
+    drawEnergyFrom: string;
+    beBravest: string;
+    sayYesTo: string;
+    adviseSelf: string;
+    specialBecause: string;
+  };
   wordOfYear: string;
   secretWish: string;
 }
@@ -86,12 +81,11 @@ export interface ClosingSection {
 
 export interface FormData {
   pastYear: PastYearSection;
-  yearAhead: FutureYearSection;
+  yearAhead: YearAheadSection;
   closing: ClosingSection;
 }
 
-// Initialize with empty values
-const initialFormData: FormData = {
+export const initialFormData: FormData = {
   pastYear: {
     calendarReview: '',
     yearOverview: {
@@ -110,13 +104,14 @@ const initialFormData: FormData = {
     biggestSurprise: '',
     importantForOthers: '',
     biggestCompletion: '',
+    bestMoments: '',
+    threeWords: ['', '', ''],
     mostProudOf: '',
     peopleWhoInfluenced: '',
     peopleYouInfluenced: '',
     notAccomplished: '',
     bestDiscovery: '',
     mostGratefulFor: '',
-    bestMoments: '',
     biggestAccomplishments: '',
     howAchieved: '',
     whoHelped: '',
@@ -125,9 +120,7 @@ const initialFormData: FormData = {
     challengeLearnings: '',
     forgiveness: '',
     lettingGo: '',
-    threeWords: ['', '', ''],
-    bookTitle: '',
-    goodbye: ''
+    bookTitle: ''
   },
   yearAhead: {
     dreamBig: '',
@@ -142,18 +135,18 @@ const initialFormData: FormData = {
       betterTomorrow: ''
     },
     magicalTriplets: {
-      loveAboutSelf: [],
-      letGoOf: [],
-      achieveMost: [],
-      pillarsInRoughTimes: [],
-      dareToDiscover: [],
-      sayNoTo: [],
-      surroundingsCozy: [],
-      morningRoutine: [],
-      pamperSelf: [],
-      placesToVisit: [],
-      connectWithLovedOnes: [],
-      rewardSuccesses: []
+      loveAboutSelf: ['', '', ''],
+      letGoOf: ['', '', ''],
+      achieveMost: ['', '', ''],
+      pillarsInRoughTimes: ['', '', ''],
+      dareToDiscover: ['', '', ''],
+      sayNoTo: ['', '', ''],
+      surroundingsCozy: ['', '', ''],
+      morningRoutine: ['', '', ''],
+      pamperSelf: ['', '', ''],
+      placesToVisit: ['', '', ''],
+      connectWithLovedOnes: ['', '', ''],
+      rewardSuccesses: ['', '', '']
     },
     sixSentences: {
       notProcrastinate: '',
