@@ -8,7 +8,7 @@ import PastYearSection from "@/components/forms/past-year-section";
 import YearAheadSection from "@/components/forms/year-ahead-section";
 import ClosingSection from "@/components/forms/closing-section";
 import { Button } from "@/components/ui/button";
-import { Download, Mail } from "lucide-react";
+import { Download, Mail, Instagram, Twitter } from "lucide-react";
 
 const crimsonPro = Crimson_Pro({ subsets: ["latin"] });
 
@@ -61,7 +61,7 @@ export default function Home() {
           </p>
 
           <div className="space-y-4">
-          <h3 className={`${crimsonPro.className} text-3xl`}>Who built this?</h3>
+            <h3 className={`${crimsonPro.className} text-3xl`}>Who built this?</h3>
             <p>
             I'm{" "}
               <a 
@@ -101,9 +101,37 @@ export default function Home() {
                 and you can come back anytime.
               </p>
             </div>
+
+            <div className="space-y-2">
+              <h3 className={`${crimsonPro.className} text-2xl`}>Project Roadmap</h3>
+              <p>
+                <strong>Current Iteration:</strong> Download your responses as PDF, Email your responses, Get AI-powered analysis
+              </p>
+              <p>
+                <strong>Future Iteration:</strong> Let me know if you'd like anything. Reach out to me on:
+              </p>
+                <a 
+                  href="https://instagram.com/yashchitneni"
+                  className="text-blue-600 hover:underline flex items-center gap-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Instagram className="h-4 w-4" />
+                  Instagram
+                </a>
+                <a
+                  href="https://x.com/yashchitneni" 
+                  className="text-blue-600 hover:underline flex items-center gap-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Twitter className="h-4 w-4" />
+                  X
+                </a>
+            </div>
           </div>
         </section>
-        </Card>
+      </Card>
 
         {/* Past Year Section */}
         <Card className="bg-white shadow-md print:shadow-none">
