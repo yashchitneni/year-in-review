@@ -1,7 +1,19 @@
 {
   "functions": {
-    "api/analyze": {
-      "maxDuration": 60
+    "app/api/analyze/route": {
+      "maxDuration": 300,
+      "memory": 3008
     }
-  }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
 } 
