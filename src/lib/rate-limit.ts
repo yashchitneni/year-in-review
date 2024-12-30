@@ -1,53 +1,62 @@
 import { kv } from '@vercel/kv';
 
-const MINUTE_IN_MS = 60 * 1000;
-const DAY_IN_MS = 24 * 60 * MINUTE_IN_MS;
+// Rate limit configuration
+const RATE_LIMITS = {
+  REQUESTS_PER_MINUTE: 15,
+  REQUESTS_PER_DAY: 1500,
+};
 
 interface RateLimitResult {
   success: boolean;
-  limit: string;
-  current: number;
-  remaining: number;
-  reset: number;
+  minuteLimit?: number;
+  minuteRemaining?: number;
+  dayLimit?: number;
+  dayRemaining?: number;
+  resetIn?: number;
 }
 
 export async function rateLimit(apiKey: string): Promise<RateLimitResult> {
-  const now = Date.now();
-  const minuteKey = `rate_limit:${apiKey}:minute:${Math.floor(now / MINUTE_IN_MS)}`;
-  const dayKey = `rate_limit:${apiKey}:day:${Math.floor(now / DAY_IN_MS)}`;
-
   try {
-    // Get current counts with proper null handling
-    const [minuteCountResult, dayCountResult] = await Promise.all([
-      kv.get<number>(minuteKey),
-      kv.get<number>(dayKey)
-    ]);
+    // Skip rate limiting for custom API keys
+    if (apiKey !== process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+      return { success: true };
+    }
 
+    // Check if we're in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Rate limiting disabled in development');
+      return { success: true };
+    }
+
+    // Get current timestamps
+    const now = Date.now();
+    const minuteKey = `rate_limit:${apiKey}:minute`;
+    const dayKey = `rate_limit:${apiKey}:day`;
+
+    // Get current counts
+    const minuteResult = await kv.get<number>(minuteKey);
+    const dayResult = await kv.get<number>(dayKey);
+    
     // Convert null to 0
-    const minuteCount = minuteCountResult ?? 0;
-    const dayCount = dayCountResult ?? 0;
+    const minuteCount = minuteResult || 0;
+    const dayCount = dayResult || 0;
 
-    // Check minute limit (15 RPM)
-    if (minuteCount >= 15) {
-      const resetTime = Math.ceil(now / MINUTE_IN_MS) * MINUTE_IN_MS;
+    // Check limits
+    if (minuteCount >= RATE_LIMITS.REQUESTS_PER_MINUTE) {
       return {
         success: false,
-        limit: 'minute',
-        current: minuteCount,
-        remaining: 0,
-        reset: resetTime
+        minuteLimit: RATE_LIMITS.REQUESTS_PER_MINUTE,
+        minuteRemaining: 0,
+        resetIn: 60 // seconds until reset
       };
     }
 
-    // Check day limit (1,500 RPD)
-    if (dayCount >= 1500) {
-      const resetTime = Math.ceil(now / DAY_IN_MS) * DAY_IN_MS;
+    if (dayCount >= RATE_LIMITS.REQUESTS_PER_DAY) {
       return {
         success: false,
-        limit: 'day',
-        current: dayCount,
-        remaining: 0,
-        reset: resetTime
+        dayLimit: RATE_LIMITS.REQUESTS_PER_DAY,
+        dayRemaining: 0,
+        resetIn: 24 * 60 * 60 // seconds until reset
       };
     }
 
@@ -61,35 +70,24 @@ export async function rateLimit(apiKey: string): Promise<RateLimitResult> {
 
     return {
       success: true,
-      limit: 'none',
-      current: Math.max(minuteCount, dayCount) + 1,
-      remaining: Math.min(15 - (minuteCount + 1), 1500 - (dayCount + 1)),
-      reset: Math.min(
-        Math.ceil(now / MINUTE_IN_MS) * MINUTE_IN_MS,
-        Math.ceil(now / DAY_IN_MS) * DAY_IN_MS
-      )
+      minuteLimit: RATE_LIMITS.REQUESTS_PER_MINUTE,
+      minuteRemaining: RATE_LIMITS.REQUESTS_PER_MINUTE - (minuteCount + 1),
+      dayLimit: RATE_LIMITS.REQUESTS_PER_DAY,
+      dayRemaining: RATE_LIMITS.REQUESTS_PER_DAY - (dayCount + 1)
     };
   } catch (error) {
     console.error('Rate limit error:', error);
-    // If rate limiting fails, allow the request but log the error
-    return {
-      success: true,
-      limit: 'error',
-      current: 0,
-      remaining: 1,
-      reset: now + MINUTE_IN_MS
-    };
+    // If we can't check rate limits, allow the request
+    return { success: true };
   }
 }
 
 export function formatRateLimitError(result: RateLimitResult): string {
-  const resetDate = new Date(result.reset);
-  const timeUntilReset = Math.ceil((result.reset - Date.now()) / 1000);
-  
-  if (result.limit === 'minute') {
-    return `Rate limit exceeded: 15 requests per minute. Please try again in ${timeUntilReset} seconds or use your own API key.`;
-  } else if (result.limit === 'day') {
-    return `Rate limit exceeded: 1,500 requests per day. Please try again after ${resetDate.toLocaleTimeString()} or use your own API key.`;
+  if (result.minuteRemaining === 0) {
+    return `Rate limit exceeded. Please try again in a minute or use your own API key.`;
   }
-  return 'Unknown rate limit error. Please try again later.';
+  if (result.dayRemaining === 0) {
+    return `Daily rate limit exceeded. Please try again tomorrow or use your own API key.`;
+  }
+  return `Rate limit error. Please try again later or use your own API key.`;
 } 
