@@ -416,10 +416,48 @@ function setCachedAnalysis(cacheKey: string, analysis: string) {
   }
 }
 
+// Increase timeout and add request tracking
+const REQUEST_TIMEOUT = 12000; // 12 seconds
+const MAX_RETRIES = 2;
+
+async function retryableAnalysis(model: any, prompt: string, data: any, attempt = 0): Promise<GenerateContentResult> {
+  try {
+    console.log(`Analysis attempt ${attempt + 1}/${MAX_RETRIES + 1}`);
+    
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error(`Analysis timeout after ${REQUEST_TIMEOUT/1000} seconds`)), REQUEST_TIMEOUT)
+    );
+
+    const analysisPromise = model.generateContent([
+      { text: prompt },
+      { text: JSON.stringify(data, null, 2) }
+    ]);
+
+    const result = await Promise.race([analysisPromise, timeoutPromise]);
+    
+    if (!result?.response) {
+      throw new Error('Empty response from Gemini API');
+    }
+
+    return result as GenerateContentResult;
+  } catch (error: any) {
+    console.error(`Analysis attempt ${attempt + 1} failed:`, error);
+    
+    if (attempt < MAX_RETRIES) {
+      console.log('Retrying analysis...');
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s between retries
+      return retryableAnalysis(model, prompt, data, attempt + 1);
+    }
+    
+    throw error;
+  }
+}
+
 export async function analyzeWithGemini({ formData, framework, customPrompt, apiKey: providedApiKey }: AnalysisRequest) {
   try {
+    console.time('analysis');
     const apiKey = providedApiKey || getApiKey();
-    console.log('Analysis Request:', {
+    console.log('Starting analysis with:', {
       hasApiKey: !!apiKey,
       framework,
       hasCustomPrompt: !!customPrompt,
@@ -441,6 +479,7 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
     const cachedResult = getCachedAnalysis(cacheKey);
     if (cachedResult) {
       console.log('Using cached analysis');
+      console.timeEnd('analysis');
       return {
         success: true,
         analysis: cachedResult
@@ -449,8 +488,10 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
 
     // Check rate limit only for public API key
     if (apiKey === process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+      console.log('Checking rate limit...');
       const rateLimitResult = await rateLimit(apiKey);
       if (!rateLimitResult.success) {
+        console.log('Rate limit exceeded:', rateLimitResult);
         return {
           success: false,
           error: formatRateLimitError(rateLimitResult)
@@ -459,6 +500,7 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
     }
 
     // Get the model with current API key
+    console.log('Initializing Gemini client...');
     const genAI = getGeminiClient(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
@@ -486,39 +528,28 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       hasPrompt: !!prompt,
       hasData: !!analysisData,
       dataKeys: Object.keys(analysisData),
-      isUsingPublicKey: apiKey === process.env.NEXT_PUBLIC_GEMINI_API_KEY
+      promptLength: prompt.length,
+      dataLength: JSON.stringify(analysisData).length
     });
 
-    // Generate the analysis with a timeout
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Analysis timed out')), 20000)
-    );
-
-    const analysisPromise = model.generateContent([
-      prompt,
-      JSON.stringify(analysisData, null, 2)
-    ]);
-
-    const result = await Promise.race([analysisPromise, timeoutPromise]) as GenerateContentResult;
-    
-    if (!result?.response) {
-      throw new Error('Analysis timed out or failed');
-    }
-
+    // Attempt analysis with retries
+    const result = await retryableAnalysis(model, prompt, analysisData);
     const text = result.response.text();
 
     if (!text) {
-      throw new Error('No response generated');
+      throw new Error('No response text generated');
     }
 
     // Cache the successful result
     setCachedAnalysis(cacheKey, text);
-
+    
+    console.timeEnd('analysis');
     return {
       success: true,
       analysis: text
     };
   } catch (error: any) {
+    console.timeEnd('analysis');
     console.error('Gemini API Error:', {
       message: error.message,
       type: error.constructor.name,
@@ -542,21 +573,17 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       };
     }
 
-    if (error.message === 'Analysis timed out') {
+    if (error.message?.includes('timeout')) {
       return {
         success: false,
-        error: "The analysis is taking longer than expected. Please try again."
+        error: "The analysis is taking too long. This might be due to high server load. Please try again in a few moments."
       };
     }
 
-    // Return the full error message in development
-    const errorMessage = process.env.NODE_ENV === 'development' 
-      ? `Error: ${error.message}\n\nStack: ${error.stack}`
-      : error.message;
-
+    // Return a more detailed error message
     return {
       success: false,
-      error: errorMessage
+      error: `Analysis failed: ${error.message}. Please try again or contact support if the issue persists.`
     };
   }
 }
