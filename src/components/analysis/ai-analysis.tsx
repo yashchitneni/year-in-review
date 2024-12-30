@@ -239,11 +239,25 @@ export default function AIAnalysis() {
         })
       });
 
-      const data = await response.json();
+      // Log the raw response for debugging
+      const responseText = await response.text();
+      console.log('Raw API Response:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        throw new Error(`Server response error: ${responseText.slice(0, 100)}...`);
+      }
 
       if (!response.ok) {
-        console.error('Analysis failed:', data);
-        throw new Error(data.error || "Failed to analyze");
+        console.error('Analysis failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          data
+        });
+        throw new Error(data.error || `Server error: ${response.status} ${response.statusText}`);
       }
 
       setAnalysis(data.analysis);
@@ -255,8 +269,12 @@ export default function AIAnalysis() {
       setHasAttemptedAnalysis(false);
       setIsResultOpen(true);
     } catch (err: any) {
-      console.error('Analysis error:', err);
-      setError(err.message);
+      console.error('Analysis error:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      });
+      setError(err.message || "Failed to analyze. Please try again.");
     } finally {
       setIsLoading(false);
     }
