@@ -45,8 +45,8 @@ export type AnalysisFramework =
 interface AnalysisRequest {
   formData: any;
   framework: AnalysisFramework;
-  customPrompt?: string;
-  apiKey?: string | null;
+  customPrompt: string | null;
+  apiKey: string | null;
 }
 
 export const FRAMEWORK_PROMPTS: Record<Exclude<AnalysisFramework, "custom">, string> = {

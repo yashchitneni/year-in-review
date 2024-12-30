@@ -13,6 +13,7 @@ import { saveApiKey } from "@/lib/gemini";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { SubscriptionForm } from "@/components/check-in/SubscriptionForm";
+import { analyzeWithGemini } from '@/lib/gemini';
 
 const FRAMEWORK_DESCRIPTIONS = {
   pattern: {
@@ -183,98 +184,41 @@ export default function AIAnalysis() {
   });
 
   const handleAnalyze = async () => {
-    if (!selectedFramework) return;
-    if (selectedFramework === "custom" && !customPrompt.trim()) {
-      setError("Please enter a custom prompt for analysis.");
+    if (!selectedFramework) {
+      setError("Please select a framework for analysis");
       return;
     }
 
-    // Check if we have any responses to analyze
-    if (!formData.pastYear.calendarReview && !formData.yearAhead.dreamBig) {
-      setError("Please fill out some responses before analyzing.");
-      return;
-    }
-
-    // Add the current framework to analyzed frameworks if not already present
-    if (!analyzedFrameworks.includes(selectedFramework)) {
-      setAnalyzedFrameworks(prev => [...prev, selectedFramework]);
-    }
-
-    // If we have a cached result and not forcing refresh, use it
-    if (cachedResults[selectedFramework] && !isLoading) {
-      setAnalysis(cachedResults[selectedFramework]);
-      setIsResultOpen(true);
-      return;
-    }
-
-    setHasAttemptedAnalysis(true);
     setIsLoading(true);
     setError(null);
-    setAnalysis(null);
-
+    
     try {
-      // Get the current API key
-      const currentApiKey = localStorage.getItem('gemini_api_key');
+      console.log('Starting client-side analysis...');
       
-      console.log('Starting analysis...', {
+      // Get the API key from localStorage or environment
+      const apiKey = localStorage.getItem('gemini_api_key') || process.env.NEXT_PUBLIC_GEMINI_API_KEY || null;
+      
+      if (!apiKey) {
+        throw new Error('Please add your Gemini API key in the settings above');
+      }
+
+      // Call analyzeWithGemini directly instead of going through the API route
+      const result = await analyzeWithGemini({
+        formData,
         framework: selectedFramework,
-        hasCustomPrompt: !!customPrompt,
-        hasApiKey: !!currentApiKey,
-        hasResponses: {
-          pastYear: !!formData.pastYear,
-          yearAhead: !!formData.yearAhead
-        }
+        customPrompt: customPrompt || null,
+        apiKey
       });
 
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "x-gemini-key": currentApiKey || ''
-        },
-        body: JSON.stringify({
-          formData,
-          framework: selectedFramework,
-          customPrompt: selectedFramework === "custom" ? customPrompt : undefined
-        })
-      });
-
-      // Log the raw response for debugging
-      const responseText = await response.text();
-      console.log('Raw API Response:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse response:', parseError);
-        throw new Error(`Server response error: ${responseText.slice(0, 100)}...`);
+      if (!result.success || !result.analysis) {
+        throw new Error(result.error || 'Failed to generate analysis');
       }
 
-      if (!response.ok) {
-        console.error('Analysis failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          data
-        });
-        throw new Error(data.error || `Server error: ${response.status} ${response.statusText}`);
-      }
-
-      setAnalysis(data.analysis);
-      // Cache the result
-      setCachedResults(prev => ({
-        ...prev,
-        [selectedFramework]: data.analysis
-      }));
-      setHasAttemptedAnalysis(false);
+      setAnalysis(result.analysis);
       setIsResultOpen(true);
-    } catch (err: any) {
-      console.error('Analysis error:', {
-        message: err.message,
-        stack: err.stack,
-        name: err.name
-      });
-      setError(err.message || "Failed to analyze. Please try again.");
+    } catch (error: any) {
+      console.error('Analysis error:', error);
+      setError(error.message || 'Failed to generate analysis');
     } finally {
       setIsLoading(false);
     }
@@ -550,7 +494,7 @@ export default function AIAnalysis() {
             Write your own prompt for analyzing your year review. You'll have access to all your responses in pastYear and yearAhead sections.
           </p>
           <Textarea
-            value={customPrompt}
+            value={customPrompt || ""}
             onChange={(e) => setCustomPrompt(e.target.value)}
             placeholder="Example: Analyze my year and identify the key themes, challenges, and opportunities. What patterns emerge from my responses?"
             className="min-h-[150px] mb-2"
