@@ -25,7 +25,7 @@ function getApiKey(): string | null {
 }
 
 // Initialize Gemini with dynamic API key
-function getGeminiClient(apiKey: string) {
+export function getGeminiClient(apiKey: string) {
   if (!apiKey || apiKey.trim() === '') {
     throw new Error('Empty API key provided');
   }
@@ -49,7 +49,7 @@ interface AnalysisRequest {
   apiKey?: string | null;
 }
 
-const FRAMEWORK_PROMPTS: Record<Exclude<AnalysisFramework, "custom">, string> = {
+export const FRAMEWORK_PROMPTS: Record<Exclude<AnalysisFramework, "custom">, string> = {
   pattern: `You are an insightful pattern observer who reveals the subtle rhythms and deeper currents in life journeys.
 
 Speak with:
@@ -258,7 +258,7 @@ When creating their star map:
 - Recognize both light and shadow in the sky`
 };
 
-const FRAMEWORK_DATA_MAPPERS: Record<Exclude<AnalysisFramework, "custom">, (formData: any) => any> = {
+export const FRAMEWORK_DATA_MAPPERS: Record<Exclude<AnalysisFramework, "custom">, (formData: any) => any> = {
   pattern: (formData: any) => ({
     past: {
       keyEvents: formData.pastYear.calendarReview,
