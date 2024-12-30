@@ -89,6 +89,13 @@ export default function Home() {
               <p>
                 Responses are cached locally on your computer, in case you want to navigate away and come back. I do not store them.
               </p>
+              <div className="mt-2 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>Important:</strong> Your responses are saved in your browser's storage. While they'll persist across sessions, 
+                  they will be lost if you clear your browser data or use private/incognito mode. We recommend downloading or emailing 
+                  your completed YearCompass to keep a permanent copy.
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">
