@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, GenerateContentResult } from "@google/generative-ai";
 import { rateLimit, formatRateLimitError } from "./rate-limit";
 
 // Function to get the API key
@@ -373,9 +373,51 @@ export const FRAMEWORK_DATA_MAPPERS: Record<Exclude<AnalysisFramework, "custom">
   })
 };
 
+// Add a cache for analysis results
+const CACHE_DURATION = 1000 * 60 * 60 * 24; // 24 hours
+
+interface CachedAnalysis {
+  timestamp: number;
+  analysis: string;
+}
+
+// Client-side cache management
+function getCachedAnalysis(cacheKey: string): string | null {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const cached = localStorage.getItem(`analysis_${cacheKey}`);
+    if (!cached) return null;
+    
+    const { timestamp, analysis } = JSON.parse(cached) as CachedAnalysis;
+    if (Date.now() - timestamp > CACHE_DURATION) {
+      localStorage.removeItem(`analysis_${cacheKey}`);
+      return null;
+    }
+    
+    return analysis;
+  } catch (error) {
+    console.error('Cache error:', error);
+    return null;
+  }
+}
+
+function setCachedAnalysis(cacheKey: string, analysis: string) {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const cache: CachedAnalysis = {
+      timestamp: Date.now(),
+      analysis
+    };
+    localStorage.setItem(`analysis_${cacheKey}`, JSON.stringify(cache));
+  } catch (error) {
+    console.error('Cache error:', error);
+  }
+}
+
 export async function analyzeWithGemini({ formData, framework, customPrompt, apiKey: providedApiKey }: AnalysisRequest) {
   try {
-    // Use provided API key or fall back to getting it from storage/env
     const apiKey = providedApiKey || getApiKey();
     console.log('Analysis Request:', {
       hasApiKey: !!apiKey,
@@ -389,6 +431,19 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       return {
         success: false,
         error: "Please add your Gemini API key in the settings above. You can get one for free from Google AI Studio."
+      };
+    }
+
+    // Generate cache key based on input data
+    const cacheKey = btoa(JSON.stringify({ framework, formData, customPrompt }));
+    
+    // Check cache first
+    const cachedResult = getCachedAnalysis(cacheKey);
+    if (cachedResult) {
+      console.log('Using cached analysis');
+      return {
+        success: true,
+        analysis: cachedResult
       };
     }
 
@@ -434,13 +489,30 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       isUsingPublicKey: apiKey === process.env.NEXT_PUBLIC_GEMINI_API_KEY
     });
 
-    // Generate the analysis
-    const result = await model.generateContent([
+    // Generate the analysis with a timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Analysis timed out')), 20000)
+    );
+
+    const analysisPromise = model.generateContent([
       prompt,
       JSON.stringify(analysisData, null, 2)
     ]);
-    const response = await result.response;
-    const text = response.text();
+
+    const result = await Promise.race([analysisPromise, timeoutPromise]) as GenerateContentResult;
+    
+    if (!result?.response) {
+      throw new Error('Analysis timed out or failed');
+    }
+
+    const text = result.response.text();
+
+    if (!text) {
+      throw new Error('No response generated');
+    }
+
+    // Cache the successful result
+    setCachedAnalysis(cacheKey, text);
 
     return {
       success: true,
@@ -467,6 +539,13 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       return {
         success: false,
         error: "Invalid API key. Please check your API key or try getting a new one from Google AI Studio."
+      };
+    }
+
+    if (error.message === 'Analysis timed out') {
+      return {
+        success: false,
+        error: "The analysis is taking longer than expected. Please try again."
       };
     }
 
