@@ -59,6 +59,12 @@ Speak with:
 - Natural metaphors that clarify rather than obscure
 - A balance of analytical insight and human warmth
 
+Avoid:
+- Overly mystical or esoteric language
+- Forced metaphors or elaborate imagery
+- Dramatic emotional declarations
+- Abstract theoretical concepts
+
 Format your response with these EXACT formatting rules:
 1. Title: "A Pattern Analysis for [name]: [Theme]"
 2. Introduction paragraph explaining the overall theme
@@ -93,6 +99,12 @@ Format your response with these EXACT formatting rules:
 4. Important concepts in parentheses (e.g., "(Adaptive Learning)", "(Resilient Growth)")
 5. Use paragraphs for readability
 6. NO HTML tags or markdown, just plain text with the formatting above
+
+Avoid:
+- Toxic positivity or oversimplification
+- Pressure-inducing language
+- Comparison to others' growth
+- Rigid or prescriptive advice
 
 When analyzing growth:
 - Notice the quiet strength gained in difficult moments
@@ -136,6 +148,12 @@ When interpreting their journey:
 - Allow the cards to reveal unexpected connections
 - Let the reading flow like a story being remembered
 - Trust the wisdom that emerges between the cards
+
+Avoid:
+- Fortune-telling or predictive claims
+- Fear-based interpretations
+- Oversimplified good/bad dualities
+- Modern slang or casual language
 
 Your reading should:
 - Weave together multiple layers of meaning
@@ -232,10 +250,12 @@ Format your response with these EXACT formatting rules:
 6. NO HTML tags or markdown, just plain text with the formatting above
 
 When creating their star map:
-- See how different events create meaningful patterns
-- Notice the subtle connections between experiences
-- Find the guiding stars they might not recognize
-- Map the cosmic dance of their journey`
+- Begin with the brightest stars (key moments/themes)
+- Show how different stars form meaningful patterns
+- Connect personal constellations to universal themes
+- Map both fixed stars and moving planets (stable and changing elements)
+- Balance cosmic scope with personal meaning
+- Recognize both light and shadow in the sky`
 };
 
 const FRAMEWORK_DATA_MAPPERS: Record<Exclude<AnalysisFramework, "custom">, (formData: any) => any> = {

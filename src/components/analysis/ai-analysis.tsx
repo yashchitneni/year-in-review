@@ -6,12 +6,13 @@ import { formDataAtom } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Loader2, Sparkles, Wand2, Key, ChevronDown, ChevronUp, ExternalLink, Check, X, RefreshCw } from "lucide-react";
+import { Loader2, Sparkles, Wand2, Key, ChevronDown, ChevronUp, ExternalLink, Check, X, RefreshCw, RotateCcw, CheckCircle2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import type { AnalysisFramework } from "@/lib/gemini";
 import { saveApiKey } from "@/lib/gemini";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { SubscriptionForm } from "@/components/check-in/SubscriptionForm";
 
 const FRAMEWORK_DESCRIPTIONS = {
   pattern: {
@@ -120,6 +121,7 @@ export default function AIAnalysis() {
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [hasAttemptedAnalysis, setHasAttemptedAnalysis] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
+  const [analyzedFrameworks, setAnalyzedFrameworks] = useState<AnalysisFramework[]>([]);
 
   // Load saved API key on mount
   useEffect(() => {
@@ -191,6 +193,11 @@ export default function AIAnalysis() {
     if (!formData.pastYear.calendarReview && !formData.yearAhead.dreamBig) {
       setError("Please fill out some responses before analyzing.");
       return;
+    }
+
+    // Add the current framework to analyzed frameworks if not already present
+    if (!analyzedFrameworks.includes(selectedFramework)) {
+      setAnalyzedFrameworks(prev => [...prev, selectedFramework]);
     }
 
     // If we have a cached result and not forcing refresh, use it
@@ -367,6 +374,21 @@ export default function AIAnalysis() {
       .filter(Boolean);
   };
 
+  const handleResetAnalyses = () => {
+    setAnalyzedFrameworks([]);
+    setCachedResults({
+      pattern: null,
+      growth: null,
+      tarot: null,
+      mantra: null,
+      hero: null,
+      quest: null,
+      constellation: null,
+      custom: null
+    });
+    setAnalysis(null);
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-4 bg-blue-50 border-blue-200">
@@ -451,27 +473,56 @@ export default function AIAnalysis() {
         )}
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {(Object.entries(FRAMEWORK_DESCRIPTIONS) as [AnalysisFramework, typeof FRAMEWORK_DESCRIPTIONS[keyof typeof FRAMEWORK_DESCRIPTIONS]][]).map(([framework, { title, description, emoji }]) => (
-          <Card
-            key={framework}
-            className={`p-4 cursor-pointer hover:border-primary transition-colors ${
-              selectedFramework === framework ? "border-primary" : ""
-            }`}
-            onClick={() => {
-              setSelectedFramework(framework);
-              setError(null);
-            }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{emoji}</span>
-              <h3 className="text-lg font-semibold">{title}</h3>
-            </div>
+      <div className="space-y-4">
+        {analyzedFrameworks.length > 0 && (
+          <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              {description}
+              {analyzedFrameworks.length} framework{analyzedFrameworks.length !== 1 ? 's' : ''} analyzed
             </p>
-          </Card>
-        ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetAnalyses}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reset Analyses
+            </Button>
+          </div>
+        )}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(Object.entries(FRAMEWORK_DESCRIPTIONS) as [AnalysisFramework, typeof FRAMEWORK_DESCRIPTIONS[keyof typeof FRAMEWORK_DESCRIPTIONS]][]).map(([framework, { title, description, emoji }]) => (
+            <Card
+              key={framework}
+              className={`p-4 cursor-pointer hover:border-primary transition-colors relative ${
+                selectedFramework === framework ? "border-primary" : ""
+              }`}
+              onClick={() => {
+                setSelectedFramework(framework);
+                setError(null);
+              }}
+            >
+              {analyzedFrameworks.includes(framework) && (
+                <div className="absolute top-3 right-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                </div>
+              )}
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">{emoji}</span>
+                <h3 className="text-lg font-semibold">{title}</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {description}
+              </p>
+              {analyzedFrameworks.includes(framework) && (
+                <div className="mt-2 text-xs text-green-600">
+                  Analysis available
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
       </div>
 
       {selectedFramework === "custom" && (
@@ -596,6 +647,13 @@ export default function AIAnalysis() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {analysis && !isResultOpen && (
+        <SubscriptionForm 
+          className="mt-8" 
+          selectedFrameworks={analyzedFrameworks}
+        />
+      )}
     </div>
   );
 } 
