@@ -35,7 +35,7 @@ export async function encryptData(data: any, key: CryptoKey): Promise<{
   
   return {
     encryptedData: bufferToBase64(encryptedBuffer),
-    iv: bufferToBase64(iv)
+    iv: bufferToBase64(iv.buffer)
   };
 }
 

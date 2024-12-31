@@ -51,7 +51,7 @@ export async function encryptSecurely(
   
   return {
     data: bufferToBase64(encryptedContent),
-    iv: bufferToBase64(iv),
+    iv: bufferToBase64(iv.buffer),
     authTag: bufferToBase64(authTag),
     keyVersion: "v1", // We'll implement key rotation later
     encryptedAt: new Date().toISOString()
