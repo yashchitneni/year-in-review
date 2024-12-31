@@ -45,11 +45,12 @@ export type AnalysisFramework =
   | "connections"
   | "custom";
 
-interface AnalysisRequest {
+export interface AnalysisRequest {
   formData: any;
   framework: AnalysisFramework;
   customPrompt: string | null;
-  apiKey: string | null;
+  apiKey: string;
+  userName: string;
 }
 
 export const FRAMEWORK_PROMPTS: Record<Exclude<AnalysisFramework, "custom">, string> = {
@@ -586,7 +587,7 @@ async function retryableAnalysis(model: any, prompt: string, data: any, attempt 
   }
 }
 
-export async function analyzeWithGemini({ formData, framework, customPrompt, apiKey: providedApiKey }: AnalysisRequest) {
+export async function analyzeWithGemini({ formData, framework, customPrompt, apiKey: providedApiKey, userName }: AnalysisRequest) {
   try {
     console.time('analysis');
     const apiKey = providedApiKey || getApiKey();
@@ -594,7 +595,8 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       hasApiKey: !!apiKey,
       framework,
       hasCustomPrompt: !!customPrompt,
-      isUsingPublicKey: apiKey === process.env.NEXT_PUBLIC_GEMINI_API_KEY
+      isUsingPublicKey: apiKey === process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+      userName
     });
 
     if (!apiKey) {
@@ -638,7 +640,7 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Get the framework-specific prompt and data
-    const prompt = framework === "custom" 
+    let prompt = framework === "custom" 
       ? customPrompt 
       : FRAMEWORK_PROMPTS[framework];
 
@@ -646,6 +648,9 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       console.log('No prompt found for framework:', framework);
       throw new Error("Please provide a custom prompt for analysis.");
     }
+
+    // Replace [name] placeholder with actual name
+    prompt = prompt.replace(/\[name\]/g, userName);
 
     // For custom prompts, provide all data
     const analysisData = framework === "custom" 

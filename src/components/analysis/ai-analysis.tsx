@@ -134,6 +134,7 @@ export default function AIAnalysis() {
   const [hasAttemptedAnalysis, setHasAttemptedAnalysis] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [analyzedFrameworks, setAnalyzedFrameworks] = useState<AnalysisFramework[]>([]);
+  const [userName, setUserName] = useState("");
 
   // Load saved API key on mount
   useEffect(() => {
@@ -196,8 +197,15 @@ export default function AIAnalysis() {
   });
 
   const handleAnalyze = async () => {
+    setHasAttemptedAnalysis(true);
+    
     if (!selectedFramework) {
       setError("Please select a framework for analysis");
+      return;
+    }
+
+    if (!userName.trim()) {
+      setError("Please enter your first name");
       return;
     }
 
@@ -207,19 +215,18 @@ export default function AIAnalysis() {
     try {
       console.log('Starting client-side analysis...');
       
-      // Get the API key from localStorage or environment
       const apiKey = localStorage.getItem('gemini_api_key') || process.env.NEXT_PUBLIC_GEMINI_API_KEY || null;
       
       if (!apiKey) {
         throw new Error('Please add your Gemini API key in the settings above');
       }
 
-      // Call analyzeWithGemini directly instead of going through the API route
       const result = await analyzeWithGemini({
         formData,
         framework: selectedFramework,
         customPrompt: customPrompt || null,
-        apiKey
+        apiKey: apiKey || "",
+        userName: userName.trim() || "User"
       });
 
       if (!result.success || !result.analysis) {
@@ -296,7 +303,7 @@ export default function AIAnalysis() {
       line = line.replace(/<\/?strong>/g, '**');
       
       // Handle special terms in parentheses and asterisks
-      return line.split(/(\*\*[^*]+\*\*|\([^)]+\))/g).map((part, i) => {
+      return line.split(/(\*\*[^*]+\*\*|\([^)]+\)|^[A-Za-z]+:)/).map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return (
             <span key={i} className={`font-semibold ${selectedFramework && FRAMEWORK_STYLES[selectedFramework].accent}`}>
@@ -311,6 +318,14 @@ export default function AIAnalysis() {
             </span>
           );
         }
+        // Handle person names (words followed by colon at start of line)
+        if (part.endsWith(':') && !part.includes(' ')) {
+          return (
+            <span key={i} className="text-2xl font-bold block mt-6 mb-2">
+              {part.slice(0, -1)}
+            </span>
+          );
+        }
         return part;
       });
     };
@@ -321,8 +336,8 @@ export default function AIAnalysis() {
         // Clean the line of any HTML tags first
         line = line.replace(/<\/?[^>]+(>|$)/g, '');
         
-        // Main title (e.g., "A Tarot Reading for Yash: The Architect of Serendipity")
-        if (line.includes("A Tarot Reading for") || line.includes("A Pattern Analysis for")) {
+        // Main title
+        if (line.includes("A Connection Analysis for") || line.includes("A Pattern Analysis for")) {
           return (
             <h1 key={i} className="text-3xl font-bold mb-6">
               {formatSpecialTerms(line)}
@@ -330,11 +345,11 @@ export default function AIAnalysis() {
           );
         }
 
-        // Section headers with colons (e.g., "Past Influences: The Sower and the Harvest")
+        // Section headers with colons
         if (line.match(/^[^:]+:[^:]+$/)) {
           const [title, subtitle] = line.split(':').map(s => s.trim());
           return (
-            <h2 key={i} className={`text-2xl font-bold mt-8 mb-4 ${selectedFramework && FRAMEWORK_STYLES[selectedFramework].accent}`}>
+            <h2 key={i} className={`text-xl font-semibold mt-4 mb-2 ${selectedFramework && FRAMEWORK_STYLES[selectedFramework].accent}`}>
               {formatSpecialTerms(title)}
               {subtitle && (
                 <span className="text-gray-600 font-normal ml-2">
@@ -348,7 +363,7 @@ export default function AIAnalysis() {
         // Regular paragraphs with special term formatting
         if (line.trim()) {
           return (
-            <p key={i} className="my-4 leading-relaxed">
+            <p key={i} className="my-2 leading-relaxed">
               {formatSpecialTerms(line)}
             </p>
           );
@@ -460,6 +475,25 @@ export default function AIAnalysis() {
       </Card>
 
       <div className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">First Name</label>
+            <span className="text-red-500">*</span>
+          </div>
+          <Input
+            placeholder="Enter your first name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            className={cn(
+              "max-w-xs",
+              !userName && hasAttemptedAnalysis && "border-red-500 focus-visible:ring-red-500"
+            )}
+          />
+          {!userName && hasAttemptedAnalysis && (
+            <p className="text-sm text-red-500">Please enter your name to continue</p>
+          )}
+        </div>
+        
         {analyzedFrameworks.length > 0 && (
           <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground">
