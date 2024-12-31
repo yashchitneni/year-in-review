@@ -13,8 +13,9 @@ export interface ContentGenerationContext {
 export interface GeneratedContent {
   insights: string[];
   followUpQuestions: string[];
-  generatedAt: string;
   framework: string;
+  generatedAt: string;
+  analysis?: string;  // Raw analysis text for connection framework
 }
 
 export async function processSubscriptionForContent(

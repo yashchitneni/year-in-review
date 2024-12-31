@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import type { GeneratedContent } from '../content-generation/pipeline';
 import type { Subscription } from '@/types/check-in';
+import { generateConnectionEmail, generateTestEmail } from './templates';
 
 // Initialize Resend with API key
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -14,16 +15,44 @@ export interface EmailDeliveryResult {
   messageId?: string;
 }
 
-function formatInsights(insights: string[]): string {
-  return insights
-    .map((insight, index) => `${index + 1}. ${insight}`)
-    .join('\n\n');
+interface FeaturedConnection {
+  name: string;
+  context: string;
+  suggestedAction: string;
+  conversationStarter: string;
 }
 
-function formatQuestions(questions: string[]): string {
-  return questions
-    .map((question, index) => `${index + 1}. ${question}`)
-    .join('\n\n');
+function selectFeaturedConnections(content: GeneratedContent, frequency: 'monthly' | 'quarterly'): FeaturedConnection[] {
+  // For now, we'll just take the first 3 connections
+  // TODO: Implement proper rotation and prioritization logic
+  const connections: FeaturedConnection[] = [];
+  
+  // Parse the analysis text to extract connections
+  const analysisText = content.analysis || '';
+  const sections = analysisText.split('\n\n');
+  
+  for (const section of sections) {
+    if (section.match(/^[A-Za-z]+:/)) {
+      const [name] = section.split(':');
+      const roleMatch = section.match(/Role\s*:\s*([^\n]+)/);
+      const impactMatch = section.match(/Moments of Impact\s*:\s*([^\n]+)/);
+      const planMatch = section.match(/Outreach Plan\s*:\s*([^\n]+)/);
+      
+      if (roleMatch && impactMatch && planMatch) {
+        connections.push({
+          name: name.trim(),
+          context: impactMatch[1],
+          suggestedAction: planMatch[1].split('.')[0], // Take first sentence of plan
+          conversationStarter: roleMatch[1]
+        });
+      }
+    }
+    
+    // Limit to 3 connections per email
+    if (connections.length === 3) break;
+  }
+  
+  return connections;
 }
 
 export async function sendCheckInEmail(
@@ -31,32 +60,21 @@ export async function sendCheckInEmail(
   content: GeneratedContent
 ): Promise<EmailDeliveryResult> {
   try {
-    const { email } = subscription;
-    const { insights, followUpQuestions, framework } = content;
-
-    const emailContent = `
-      <h1>Your ${framework} Check-In Insights</h1>
-      
-      <h2>🔮 Key Insights</h2>
-      <p style="white-space: pre-line">${formatInsights(insights)}</p>
-      
-      <h2>❓ Reflection Questions</h2>
-      <p style="white-space: pre-line">${formatQuestions(followUpQuestions)}</p>
-      
-      <hr />
-      
-      <p>
-        <small>
-          To update your preferences or unsubscribe, 
-          <a href="${process.env.NEXT_PUBLIC_BASE_URL}/settings?email=${encodeURIComponent(email)}">click here</a>
-        </small>
-      </p>
-    `;
+    const { email, frequency } = subscription;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://year-in-review.vercel.app';
+    
+    const featuredConnections = selectFeaturedConnections(content, frequency);
+    
+    const emailContent = generateConnectionEmail({
+      ...content,
+      featuredConnections,
+      frequency
+    }, baseUrl, email);
 
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: `Your ${framework} Journey Check-In`,
+      subject: `Your ${frequency === 'monthly' ? 'Monthly' : 'Quarterly'} Connection Check-In`,
       html: emailContent,
     });
 
@@ -80,15 +98,13 @@ export async function sendCheckInEmail(
 // Function to send a test email
 export async function sendTestEmail(email: string): Promise<EmailDeliveryResult> {
   try {
+    const emailContent = generateTestEmail(email);
+
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
       subject: 'Test Email from Year In Review',
-      html: `
-        <h1>Test Email</h1>
-        <p>This is a test email to verify the email delivery system is working correctly.</p>
-        <p>If you received this, the email system is properly configured! 🎉</p>
-      `
+      html: emailContent
     });
 
     if (error || !data) {
