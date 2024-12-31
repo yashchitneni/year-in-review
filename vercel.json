@@ -1,0 +1,6 @@
+{
+  "crons": [{
+    "path": "/api/secure-worker/trigger-checkins",
+    "schedule": "0 9 * * *"
+  }]
+} 

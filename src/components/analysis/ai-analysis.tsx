@@ -214,6 +214,17 @@ export default function AIAnalysis() {
         throw new Error(result.error || 'Failed to generate analysis');
       }
 
+      // Update analyzed frameworks list
+      if (!analyzedFrameworks.includes(selectedFramework)) {
+        setAnalyzedFrameworks(prev => [...prev, selectedFramework]);
+      }
+
+      // Update cached results
+      setCachedResults(prev => ({
+        ...prev,
+        [selectedFramework]: result.analysis
+      }));
+
       setAnalysis(result.analysis);
       setIsResultOpen(true);
     } catch (error: any) {
@@ -457,16 +468,24 @@ export default function AIAnalysis() {
           {(Object.entries(FRAMEWORK_DESCRIPTIONS) as [AnalysisFramework, typeof FRAMEWORK_DESCRIPTIONS[keyof typeof FRAMEWORK_DESCRIPTIONS]][]).map(([framework, { title, description, emoji }]) => (
             <Card
               key={framework}
-              className={`p-4 cursor-pointer hover:border-primary transition-colors relative ${
-                selectedFramework === framework ? "border-primary" : ""
-              }`}
+              className={cn(
+                "p-4 cursor-pointer hover:border-primary transition-colors relative",
+                selectedFramework === framework && "border-primary",
+                analyzedFrameworks.includes(framework) && "bg-muted/30"
+              )}
               onClick={() => {
                 setSelectedFramework(framework);
                 setError(null);
+                // If we have a cached result, show it immediately
+                if (cachedResults[framework]) {
+                  setAnalysis(cachedResults[framework]);
+                  setIsResultOpen(true);
+                }
               }}
             >
               {analyzedFrameworks.includes(framework) && (
-                <div className="absolute top-3 right-3">
+                <div className="absolute top-3 right-3 flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Analysis available</span>
                   <CheckCircle2 className="h-5 w-5 text-green-500" />
                 </div>
               )}
@@ -477,11 +496,6 @@ export default function AIAnalysis() {
               <p className="text-sm text-muted-foreground">
                 {description}
               </p>
-              {analyzedFrameworks.includes(framework) && (
-                <div className="mt-2 text-xs text-green-600">
-                  Analysis available
-                </div>
-              )}
             </Card>
           ))}
         </div>
