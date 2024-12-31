@@ -51,6 +51,11 @@ const FRAMEWORK_DESCRIPTIONS = {
     description: "Maps your experiences into celestial patterns, revealing the cosmic dance of your journey",
     emoji: "💫"
   },
+  connections: {
+    title: "Connection Analysis",
+    description: "Maps and strengthens your relationships with friends, family, and mentors",
+    emoji: "🤝"
+  },
   custom: {
     title: "Custom Analysis",
     description: "Create your own analysis framework with a custom prompt",
@@ -101,6 +106,12 @@ const FRAMEWORK_STYLES = {
     accent: "text-indigo-600",
     border: "border-indigo-200",
     icon: "✨ bg-indigo-100"
+  },
+  connections: {
+    gradient: "bg-gradient-to-br from-pink-50 to-pink-100",
+    accent: "text-pink-600",
+    border: "border-pink-200",
+    icon: "🤝 bg-pink-100"
   },
   custom: {
     gradient: "bg-gradient-to-br from-gray-50 to-gray-100",
@@ -180,6 +191,7 @@ export default function AIAnalysis() {
     hero: null,
     quest: null,
     constellation: null,
+    connections: null,
     custom: null
   });
 
@@ -357,6 +369,7 @@ export default function AIAnalysis() {
       hero: null,
       quest: null,
       constellation: null,
+      connections: null,
       custom: null
     });
     setAnalysis(null);

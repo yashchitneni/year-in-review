@@ -42,6 +42,7 @@ export type AnalysisFramework =
   | "hero" 
   | "quest" 
   | "constellation"
+  | "connections"
   | "custom";
 
 interface AnalysisRequest {
@@ -296,7 +297,70 @@ Your analysis should:
   - Connect personal constellations to universal themes
   - Map both fixed stars and moving planets (stable and changing elements)
   - Balance cosmic scope with personal meaning
-  - Recognize both light and shadow in the sky`
+  - Recognize both light and shadow in the sky`,
+
+  connections: `You are an insightful relationship analyst who helps nurture meaningful connections with friends and family.
+
+Format your response with these EXACT formatting rules:
+1. Title: "A Connection Analysis for [name]: Nurturing Your Circle"
+2. Introduction paragraph identifying key relationship patterns and themes
+3. Section headers with colons (e.g., "Core Connections: Your Inner Circle")
+4. Important insights in parentheses (e.g., "(Impact Pattern: Mutual Growth)")
+5. Each person mentioned gets their own subsection with a clear outreach plan
+6. NO HTML tags or markdown, just plain text with the formatting above
+
+Analysis Structure:
+
+1. Relationship Mapping:
+- Identify all unique names mentioned across responses
+- Group connections by type (family, mentors, friends, colleagues)
+- Note the context and impact of each relationship
+- Map the frequency and nature of interactions
+
+2. Connection Analysis for Each Person:
+- Their role in your journey
+- Specific moments of impact or support
+- Areas of mutual growth
+- Shared experiences or challenges
+- Current connection status
+
+3. Personalized Outreach Plans:
+For each person, create:
+- Meaningful conversation starters based on shared history
+- Specific topics to explore or revisit
+- Potential ways to offer support or collaboration
+- Suggested frequency and method of contact
+- Ideas for deepening the connection
+
+4. Impact Exchange:
+- How they influenced your growth
+- How you influenced their journey
+- Potential future collaborations
+- Ways to amplify mutual support
+
+Your analysis should:
+- Extract all names mentioned in responses
+- Create personalized outreach strategies
+- Connect past interactions to future opportunities
+- Suggest specific ways to strengthen each relationship
+- Identify patterns in your most meaningful connections
+- Provide actionable steps for maintaining relationships
+
+When creating outreach plans:
+- Reference specific shared experiences
+- Consider their communication style
+- Include both short-term and long-term connection points
+- Balance professional and personal aspects
+- Suggest concrete activities or conversation topics
+- Note important dates or milestones to acknowledge
+
+Remember to:
+- Be specific about why each person matters
+- Include both close connections and potential reconnections
+- Consider both giving and receiving support
+- Focus on authentic, meaningful interactions
+- Respect different relationship dynamics
+- Create sustainable connection patterns`
 };
 
 export const FRAMEWORK_DATA_MAPPERS: Record<Exclude<AnalysisFramework, "custom">, (formData: any) => any> = {
@@ -410,6 +474,34 @@ export const FRAMEWORK_DATA_MAPPERS: Record<Exclude<AnalysisFramework, "custom">
       dreams: formData.yearAhead.dreamBig,
       wishes: formData.yearAhead.secretWish,
       goals: formData.yearAhead.magicalTriplets.achieveMost
+    }
+  }),
+  connections: (formData: any) => ({
+    pastConnections: {
+      // Calendar and life areas review
+      personalLife: formData.pastYear.yearOverview?.personalLifeFamily,
+      friendsCommunity: formData.pastYear.yearOverview?.friendsCommunity,
+      
+      // Specific relationship questions
+      influencers: formData.pastYear.peopleWhoInfluenced,
+      peopleInfluenced: formData.pastYear.peopleYouInfluenced,
+      supporters: formData.pastYear.whoHelped,
+      
+      // Additional context
+      calendarReview: formData.pastYear.calendarReview,
+      gratitude: formData.pastYear.mostGratefulFor
+    },
+    futureConnections: {
+      // Future plans involving people
+      personalLife: formData.yearAhead.yearOverview?.personalLifeFamily,
+      friendsCommunity: formData.yearAhead.yearOverview?.friendsCommunity,
+      
+      // Support system planning
+      futureSupport: formData.yearAhead.magicalTriplets?.pillarsInRoughTimes,
+      
+      // Additional context
+      dreamBig: formData.yearAhead.dreamBig,
+      intentions: formData.yearAhead.sixSentences
     }
   })
 };
@@ -676,6 +768,11 @@ export const FRAMEWORK_DESCRIPTIONS = {
     title: "Constellation Map",
     description: "Maps your experiences into celestial patterns, revealing the cosmic dance of your journey",
     emoji: "💫"
+  },
+  connections: {
+    title: "Connection Analysis",
+    description: "Maps and strengthens your relationships with friends, family, and mentors",
+    emoji: "🤝"
   },
   custom: {
     title: "Custom Analysis",
