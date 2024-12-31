@@ -9,12 +9,15 @@ import { Download, Mail } from "lucide-react";
 import SignatureCanvas from 'react-signature-canvas';
 import { useRef, useEffect } from 'react';
 import AIAnalysis from "@/components/analysis/ai-analysis";
+import { generateAndDownloadPDF } from "@/lib/pdf";
+import { useToast } from "@/components/ui/use-toast";
 
 const crimsonPro = Crimson_Pro({ subsets: ["latin"] });
 
 export default function ClosingSection() {
   const [formData, setFormData] = useAtom(formDataAtom);
   const signatureRef = useRef<SignatureCanvas>(null);
+  const { toast } = useToast();
 
   // Initialize sharing object if it doesn't exist
   useEffect(() => {
@@ -69,6 +72,26 @@ export default function ClosingSection() {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    try {
+      const success = await generateAndDownloadPDF(formData);
+      if (success) {
+        toast({
+          title: "Success",
+          description: "Your YearCompass has been downloaded as a PDF.",
+        });
+      } else {
+        throw new Error("Failed to generate PDF");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto bg-white p-8">
       <div className="space-y-8">
@@ -119,7 +142,10 @@ export default function ClosingSection() {
         <section className="space-y-4">
           <h2 className={`${crimsonPro.className} text-3xl`}>Export Your YearCompass</h2>
           <div className="flex gap-4">
-            <Button className="flex-1">
+            <Button 
+              className="flex-1"
+              onClick={handleDownloadPDF}
+            >
               <Download className="mr-2 h-4 w-4" />
               Download PDF
             </Button>
