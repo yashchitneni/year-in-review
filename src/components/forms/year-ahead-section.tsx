@@ -101,65 +101,73 @@ export default function YearAheadSection() {
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">PERSONAL LIFE, FAMILY</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.personalFamily}
                 onChange={(e) => handleNestedChange("yearOverview", "personalFamily", e.target.value)}
+                placeholder="Write about your personal life and family..."
               />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">CAREER, STUDIES</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.careerStudies}
                 onChange={(e) => handleNestedChange("yearOverview", "careerStudies", e.target.value)}
+                placeholder="Write about your career and studies..."
               />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">FRIENDS, COMMUNITY</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.friendsCommunity}
                 onChange={(e) => handleNestedChange("yearOverview", "friendsCommunity", e.target.value)}
+                placeholder="Write about your friends and community..."
               />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">RELAXATION, HOBBIES, CREATIVITY</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.relaxationHobbiesCreativity}
                 onChange={(e) => handleNestedChange("yearOverview", "relaxationHobbiesCreativity", e.target.value)}
+                placeholder="Write about your relaxation, hobbies, and creativity..."
               />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">PHYSICAL HEALTH, FITNESS</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.physicalHealthFitness}
                 onChange={(e) => handleNestedChange("yearOverview", "physicalHealthFitness", e.target.value)}
+                placeholder="Write about your physical health and fitness..."
               />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">MENTAL HEALTH, SELF-KNOWLEDGE</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.mentalHealthSelfKnowledge}
                 onChange={(e) => handleNestedChange("yearOverview", "mentalHealthSelfKnowledge", e.target.value)}
+                placeholder="Write about your mental health and self-knowledge..."
               />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">HABITS THAT DEFINE YOU</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.habitsThatDefineYou}
                 onChange={(e) => handleNestedChange("yearOverview", "habitsThatDefineYou", e.target.value)}
+                placeholder="Write about your habits..."
               />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">A BETTER TOMORROW*</h3>
               <Textarea
-                className="min-h-[150px]"
+                className="min-h-[150px] w-full border rounded-md p-3"
                 value={formData.yearAhead.yearOverview.betterTomorrow}
                 onChange={(e) => handleNestedChange("yearOverview", "betterTomorrow", e.target.value)}
+                placeholder="Write about how you'll contribute to a better tomorrow..."
               />
               <p className="text-sm italic">* What will you do next year to leave the world in a better shape than you found it?</p>
             </div>
@@ -431,49 +439,55 @@ export default function YearAheadSection() {
             <div className="space-y-2">
               <label className="text-lg">This year I will not procrastinate any more over...</label>
               <Textarea
-                className="min-h-[100px]"
+                className="min-h-[100px] w-full border rounded-md p-3"
                 value={formData.yearAhead.sixSentences.notProcrastinate}
                 onChange={(e) => handleNestedChange("sixSentences", "notProcrastinate", e.target.value)}
+                placeholder="Write what you won't procrastinate on..."
               />
             </div>
             <div className="space-y-2">
               <label className="text-lg">This year I will draw the most energy from...</label>
               <Textarea
-                className="min-h-[100px]"
+                className="min-h-[100px] w-full border rounded-md p-3"
                 value={formData.yearAhead.sixSentences.drawEnergyFrom}
                 onChange={(e) => handleNestedChange("sixSentences", "drawEnergyFrom", e.target.value)}
+                placeholder="Write about your energy sources..."
               />
             </div>
             <div className="space-y-2">
               <label className="text-lg">This year, I will be bravest when...</label>
               <Textarea
-                className="min-h-[100px]"
+                className="min-h-[100px] w-full border rounded-md p-3"
                 value={formData.yearAhead.sixSentences.beBravest}
                 onChange={(e) => handleNestedChange("sixSentences", "beBravest", e.target.value)}
+                placeholder="Write about when you'll be bravest..."
               />
             </div>
             <div className="space-y-2">
               <label className="text-lg">This year I will say yes when...</label>
               <Textarea
-                className="min-h-[100px]"
+                className="min-h-[100px] w-full border rounded-md p-3"
                 value={formData.yearAhead.sixSentences.sayYesTo}
                 onChange={(e) => handleNestedChange("sixSentences", "sayYesTo", e.target.value)}
+                placeholder="Write about when you'll say yes..."
               />
             </div>
             <div className="space-y-2">
               <label className="text-lg">This year I advise myself to...</label>
               <Textarea
-                className="min-h-[100px]"
+                className="min-h-[100px] w-full border rounded-md p-3"
                 value={formData.yearAhead.sixSentences.adviseSelf}
                 onChange={(e) => handleNestedChange("sixSentences", "adviseSelf", e.target.value)}
+                placeholder="Write your advice to yourself..."
               />
             </div>
             <div className="space-y-2">
               <label className="text-lg">This year will be special for me because...</label>
               <Textarea
-                className="min-h-[100px]"
+                className="min-h-[100px] w-full border rounded-md p-3"
                 value={formData.yearAhead.sixSentences.specialBecause}
                 onChange={(e) => handleNestedChange("sixSentences", "specialBecause", e.target.value)}
+                placeholder="Write why this year will be special..."
               />
             </div>
           </div>
@@ -487,6 +501,7 @@ export default function YearAheadSection() {
             need some extra energy, so you remember not to give up your dreams.
           </p>
           <Input
+            className="w-full border rounded-md p-3"
             value={formData.yearAhead.wordOfYear}
             onChange={(e) => handleChange("wordOfYear", e.target.value)}
             placeholder="Enter your word for the year"
@@ -500,9 +515,10 @@ export default function YearAheadSection() {
             Unleash your mind. What is your secret wish for the next year?
           </p>
           <Textarea
-            className="min-h-[200px]"
+            className="min-h-[200px] w-full border rounded-md p-3"
             value={formData.yearAhead.secretWish}
             onChange={(e) => handleChange("secretWish", e.target.value)}
+            placeholder="Write your secret wish..."
           />
         </section>
 
