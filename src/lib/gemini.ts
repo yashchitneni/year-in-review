@@ -543,7 +543,7 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
     // Get the model with current API key
     console.log('Initializing Gemini client...');
     const genAI = getGeminiClient(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Get the framework-specific prompt and data
     const prompt = framework === "custom" 
