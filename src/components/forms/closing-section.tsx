@@ -72,24 +72,201 @@ export default function ClosingSection() {
     }
   };
 
-  const handleDownloadPDF = async () => {
+  const handleExportPDF = async () => {
     try {
       const success = await generateAndDownloadPDF(formData);
       if (success) {
         toast({
           title: "Success",
-          description: "Your YearCompass has been downloaded as a PDF.",
+          description: "Your YearCompass has been exported to PDF.",
         });
       } else {
         throw new Error("Failed to generate PDF");
       }
     } catch (error) {
+      console.error("PDF generation error:", error);
       toast({
+        variant: "destructive",
         title: "Error",
         description: "Failed to generate PDF. Please try again.",
-        variant: "destructive",
       });
     }
+  };
+
+  const handleEmailToSelf = () => {
+    // Create email content
+    const subject = "My YearCompass Responses";
+    const body = `
+Past Year Review:
+
+**Going through your calendar:**
+${formData.pastYear.calendarReview}
+
+Year Overview:
+**Personal Life & Family:**
+${formData.pastYear.yearOverview.personalFamily}
+
+**Career & Studies:**
+${formData.pastYear.yearOverview.careerStudies}
+
+**Friends & Community:**
+${formData.pastYear.yearOverview.friendsCommunity}
+
+**Relaxation, Hobbies & Creativity:**
+${formData.pastYear.yearOverview.relaxationHobbiesCreativity}
+
+**Physical Health & Fitness:**
+${formData.pastYear.yearOverview.physicalHealthFitness}
+
+**Mental Health & Self-Knowledge:**
+${formData.pastYear.yearOverview.mentalHealthSelfKnowledge}
+
+**Habits That Define You:**
+${formData.pastYear.yearOverview.habitsThatDefineYou}
+
+**A Better Tomorrow:**
+${formData.pastYear.yearOverview.betterTomorrow}
+
+Six Sentences About My Past Year:
+**The wisest decision I made...**
+${formData.pastYear.wisestDecision}
+
+**The biggest lesson I learned...**
+${formData.pastYear.biggestLesson}
+
+**The biggest risk I took...**
+${formData.pastYear.biggestRisk}
+
+**The biggest surprise of the year...**
+${formData.pastYear.biggestSurprise}
+
+**The most important thing I did for others...**
+${formData.pastYear.importantForOthers}
+
+**The biggest thing I completed...**
+${formData.pastYear.biggestCompletion}
+
+**The best moments:**
+${formData.pastYear.bestMoments}
+
+**The past year in three words:**
+${formData.pastYear.threeWords.join(', ')}
+
+Six Questions About My Past Year:
+**What are you most proud of?**
+${formData.pastYear.mostProudOf}
+
+**Who are the three people who influenced you the most?**
+${formData.pastYear.peopleWhoInfluenced}
+
+**Who are the three people you influenced the most?**
+${formData.pastYear.peopleYouInfluenced}
+
+**What were you not able to accomplish?**
+${formData.pastYear.notAccomplished}
+
+**What is the best thing you have discovered about yourself?**
+${formData.pastYear.bestDiscovery}
+
+**What are you most grateful for?**
+${formData.pastYear.mostGratefulFor}
+
+Three of My Biggest Accomplishments:
+**List your three greatest accomplishments from last year here:**
+${formData.pastYear.biggestAccomplishments}
+
+**What did you do to achieve these?**
+${formData.pastYear.howAchieved}
+
+**Who helped you achieve these successes? How?**
+${formData.pastYear.whoHelped}
+
+Three of My Biggest Challenges:
+**List your three biggest challenges from last year here:**
+${formData.pastYear.biggestChallenges}
+
+**Who or what helped you overcome these challenges?**
+${formData.pastYear.whoHelpedChallenges}
+
+**What have you learned about yourself by overcoming these challenges?**
+${formData.pastYear.challengeLearnings}
+
+**Forgiveness:**
+${formData.pastYear.forgiveness}
+
+**Letting Go:**
+${formData.pastYear.lettingGo}
+
+**The book of my past year:**
+${formData.pastYear.bookTitle}
+
+Year Ahead:
+
+**Dare to dream big:**
+${formData.yearAhead.dreamBig}
+
+This is what my next year will be about:
+**Personal Life & Family:**
+${formData.yearAhead.yearOverview.personalFamily}
+
+**Career & Studies:**
+${formData.yearAhead.yearOverview.careerStudies}
+
+**Friends & Community:**
+${formData.yearAhead.yearOverview.friendsCommunity}
+
+**Relaxation, Hobbies & Creativity:**
+${formData.yearAhead.yearOverview.relaxationHobbiesCreativity}
+
+**Physical Health & Fitness:**
+${formData.yearAhead.yearOverview.physicalHealthFitness}
+
+**Mental Health & Self-Knowledge:**
+${formData.yearAhead.yearOverview.mentalHealthSelfKnowledge}
+
+**Habits That Define You:**
+${formData.yearAhead.yearOverview.habitsThatDefineYou}
+
+**A Better Tomorrow:**
+${formData.yearAhead.yearOverview.betterTomorrow}
+
+Magical Triplets:
+**I will love these three things about myself:**
+${formData.yearAhead.magicalTriplets.loveAboutSelf.join(', ')}
+
+Six Sentences About The Year Ahead:
+**This year I will not procrastinate on...**
+${formData.yearAhead.sixSentences.notProcrastinate}
+
+**This year I will draw the most energy from...**
+${formData.yearAhead.sixSentences.drawEnergyFrom}
+
+**This year I will be bravest when...**
+${formData.yearAhead.sixSentences.beBravest}
+
+**This year I will say yes when...**
+${formData.yearAhead.sixSentences.sayYesTo}
+
+**This year I advise myself to...**
+${formData.yearAhead.sixSentences.adviseSelf}
+
+**This year will be special for me because...**
+${formData.yearAhead.sixSentences.specialBecause}
+
+**My word for the year ahead:**
+${formData.yearAhead.wordOfYear}
+
+**Secret wish:**
+${formData.yearAhead.secretWish}
+
+Date: ${formData.closing.date}
+`.trim();
+
+    // Create mailto link
+    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    // Open default email client
+    window.location.href = mailtoLink;
   };
 
   return (
@@ -144,12 +321,15 @@ export default function ClosingSection() {
           <div className="flex gap-4">
             <Button 
               className="flex-1"
-              onClick={handleDownloadPDF}
+              onClick={handleExportPDF}
             >
               <Download className="mr-2 h-4 w-4" />
               Download PDF
             </Button>
-            <Button className="flex-1">
+            <Button 
+              className="flex-1"
+              onClick={handleEmailToSelf}
+            >
               <Mail className="mr-2 h-4 w-4" />
               Email to Myself
             </Button>
