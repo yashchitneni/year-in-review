@@ -1,12 +1,13 @@
 import type { AnalysisFramework } from "@/lib/gemini";
 import type { SecureEncryption } from "@/lib/secure-encryption";
 
-export type CheckInFrequency = "monthly" | "quarterly";
+export type CheckInFrequency = "daily" | "monthly" | "quarterly";
+export type AnalysisDepth = "comprehensive" | "focused" | "maintenance";
 
 export interface Subscription {
   id: string;
   email: string;
-  frequency: "monthly" | "quarterly";
+  frequency: CheckInFrequency;
   frameworks: string[];
   lastCheckIn: string | null;
   nextCheckIn: string;
@@ -14,6 +15,7 @@ export interface Subscription {
   status: "active" | "paused" | "cancelled";
   responses: any; // This will be SecureEncryption type when encrypted
   lastContentGeneration?: string | null;
+  analysisDepth: AnalysisDepth;
 }
 
 export interface SubscriptionRequest {

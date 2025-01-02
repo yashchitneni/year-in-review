@@ -1,10 +1,16 @@
 import { Resend } from 'resend';
 import type { GeneratedContent } from '../content-generation/pipeline';
-import type { Subscription } from '@/types/check-in';
+import type { Subscription, CheckInFrequency } from '@/types/check-in';
 import { generateConnectionEmail, generateTestEmail } from './templates';
 
 // Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY environment variable is not set');
+  }
+  return new Resend(apiKey);
+}
 
 // Use verified domain for all environments
 const FROM_EMAIL = 'Year In Review <checkins@yash.is>';
@@ -22,7 +28,7 @@ interface FeaturedConnection {
   conversationStarter: string;
 }
 
-function selectFeaturedConnections(content: GeneratedContent, frequency: 'monthly' | 'quarterly'): FeaturedConnection[] {
+function selectFeaturedConnections(content: GeneratedContent, frequency: CheckInFrequency): FeaturedConnection[] {
   // For now, we'll just take the first 3 connections
   // TODO: Implement proper rotation and prioritization logic
   const connections: FeaturedConnection[] = [];
@@ -60,6 +66,7 @@ export async function sendCheckInEmail(
   content: GeneratedContent
 ): Promise<EmailDeliveryResult> {
   try {
+    const resend = getResendClient();
     const { email, frequency } = subscription;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://year-in-review.vercel.app';
     
@@ -98,6 +105,7 @@ export async function sendCheckInEmail(
 // Function to send a test email
 export async function sendTestEmail(email: string): Promise<EmailDeliveryResult> {
   try {
+    const resend = getResendClient();
     const emailContent = generateTestEmail(email);
 
     const { data, error } = await resend.emails.send({

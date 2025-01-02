@@ -1,4 +1,5 @@
 import type { GeneratedContent } from '../content-generation/pipeline';
+import type { CheckInFrequency } from '@/types/check-in';
 
 interface FeaturedConnection {
   name: string;
@@ -9,7 +10,7 @@ interface FeaturedConnection {
 
 interface ConnectionEmailContent extends GeneratedContent {
   featuredConnections: FeaturedConnection[];
-  frequency: 'monthly' | 'quarterly';
+  frequency: CheckInFrequency;
 }
 
 const baseStyles = `
@@ -96,30 +97,29 @@ const baseStyles = `
   }
 `;
 
-function generateConnectionSection(connections: FeaturedConnection[], frequency: 'monthly' | 'quarterly'): string {
+function generateConnectionSection(connections: FeaturedConnection[], frequency: CheckInFrequency): string {
   return `
     <div class="section">
-      <h2 class="section-title">👥 Featured Connections This ${frequency === 'monthly' ? 'Month' : 'Quarter'}</h2>
+      <h2 class="section-title">Featured Connections for Today</h2>
       ${connections.map(connection => `
         <div class="connection-card">
           <div class="connection-name">${connection.name}</div>
-          <div class="connection-detail">
-            <strong>Recent Context:</strong> ${connection.context}
-          </div>
-          <div class="connection-detail">
-            <strong>Suggested Action:</strong> ${connection.suggestedAction}
-          </div>
-          <div class="connection-detail">
-            <strong>Conversation Starter:</strong> "${connection.conversationStarter}"
-          </div>
+          <div class="connection-detail">Context: ${connection.context}</div>
+          <div class="connection-detail">Suggested Action: ${connection.suggestedAction}</div>
+          <div class="connection-detail">Conversation Starter: ${connection.conversationStarter}</div>
         </div>
       `).join('')}
+      <p style="text-align: center; color: #6b7280; margin-top: 20px;">
+        These connections were selected for your ${frequency === 'daily' ? 'daily' : frequency === 'monthly' ? 'monthly' : 'quarterly'} check-in.
+      </p>
     </div>
   `;
 }
 
 export function generateConnectionEmail(content: ConnectionEmailContent, baseUrl: string, email: string): string {
   const { frequency, featuredConnections } = content;
+  
+  const frequencyText = frequency === 'daily' ? 'Daily' : frequency === 'monthly' ? 'Monthly' : 'Quarterly';
   
   return `
     <!DOCTYPE html>
@@ -135,7 +135,7 @@ export function generateConnectionEmail(content: ConnectionEmailContent, baseUrl
       <body>
         <div class="container">
           <div class="header">
-            <h1 style="color: #1f2937; margin: 0;">Your ${frequency === 'monthly' ? 'Monthly' : 'Quarterly'} Connection Check-In</h1>
+            <h1 style="color: #1f2937; margin: 0;">Your ${frequencyText} Connection Check-In</h1>
             <p style="color: #6b7280; margin-top: 10px;">Building stronger relationships through intentional connection</p>
           </div>
           
@@ -144,7 +144,7 @@ export function generateConnectionEmail(content: ConnectionEmailContent, baseUrl
             
             <div style="text-align: center; margin-top: 30px;">
               <p style="color: #6b7280; margin-bottom: 15px;">
-                Take action on these connections this ${frequency === 'monthly' ? 'month' : 'quarter'} to strengthen your relationships.
+                Take action on these connections this ${frequency === 'daily' ? 'day' : frequency === 'monthly' ? 'month' : 'quarter'} to strengthen your relationships.
               </p>
               <a href="${baseUrl}/settings?email=${encodeURIComponent(email)}" class="button">
                 Update Preferences

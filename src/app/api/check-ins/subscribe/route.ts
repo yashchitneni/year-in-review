@@ -42,7 +42,8 @@ const subscriptionSchema = z.object({
     "constellation",
     "custom"
   ])) as z.ZodType<AnalysisFramework[]>,
-  responses: encryptedDataSchema
+  responses: encryptedDataSchema,
+  analysisDepth: z.enum(["comprehensive", "focused", "maintenance"])
 });
 
 export async function POST(request: Request) {
@@ -65,7 +66,8 @@ export async function POST(request: Request) {
       nextCheckIn: calculateNextCheckIn(validatedData.frequency),
       createdAt: new Date().toISOString(),
       status: "active",
-      responses: validatedData.responses
+      responses: validatedData.responses,
+      analysisDepth: validatedData.analysisDepth
     };
 
     // Store in KV database
