@@ -45,7 +45,8 @@ async function testEmailDelivery(email: string) {
         closing: {
           letterToSelf: "Remember to take breaks and celebrate small wins"
         }
-      }
+      },
+      analysisDepth: "comprehensive"
     };
 
     // Generate content

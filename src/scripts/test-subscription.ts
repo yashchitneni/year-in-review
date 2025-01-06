@@ -49,7 +49,8 @@ async function createTestSubscription() {
       nextCheckIn: new Date("2024-02-01T09:00:00Z").toISOString(),
       createdAt: new Date().toISOString(),
       status: "active",
-      responses: encryptedData
+      responses: encryptedData,
+      analysisDepth: "comprehensive"
     };
 
     // Store in KV
