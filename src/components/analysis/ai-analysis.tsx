@@ -26,35 +26,35 @@ const FRAMEWORK_DESCRIPTIONS = {
     description: "Maps how your experiences build upon each other, revealing the structure of your personal development",
     emoji: "🌟"
   },
-  tarot: {
-    title: "Tarot Journey",
-    description: "Illuminates the archetypal forces and mythic patterns at play in your personal journey",
-    emoji: "🔮"
-  },
-  mantra: {
-    title: "Manifestation Mantras",
-    description: "Crafts powerful phrases that crystallize your deep truths and future possibilities",
-    emoji: "✨"
-  },
-  hero: {
-    title: "Hero's Journey",
-    description: "Transforms your experiences into an epic narrative that reveals deeper meaning and purpose",
-    emoji: "📚"
-  },
-  quest: {
-    title: "Quest Map",
-    description: "Creates an adventure map of your journey, revealing hidden paths and unexpected connections",
-    emoji: "🗺️"
-  },
-  constellation: {
-    title: "Constellation Map",
-    description: "Maps your experiences into celestial patterns, revealing the cosmic dance of your journey",
-    emoji: "💫"
-  },
   connections: {
     title: "Connection Analysis",
     description: "Maps and strengthens your relationships with friends, family, and mentors",
     emoji: "🤝"
+  },
+  hiddenBlockers: {
+    title: "Hidden Blockers Analysis",
+    description: "Uncovers subconscious or external factors holding you back, with actionable steps to overcome them",
+    emoji: "🚧"
+  },
+  habitOptimizer: {
+    title: "Habit Optimizer",
+    description: "Designs personalized routines that align with your core values and long-term vision",
+    emoji: "🔄"
+  },
+  lifeAlignment: {
+    title: "Life Alignment Map",
+    description: "Assesses how aligned your life is with your core values, purpose, and long-term vision",
+    emoji: "🧭"
+  },
+  emotionalEnergy: {
+    title: "Emotional Energy Audit",
+    description: "Identifies what fuels and drains your emotional energy, with transformative solutions for balance",
+    emoji: "⚡"
+  },
+  decisionMatrix: {
+    title: "Decision Matrix",
+    description: "Provides clarity on major decisions by analyzing pros, cons, and long-term impacts",
+    emoji: "⚖️"
   },
   custom: {
     title: "Custom Analysis",
@@ -77,41 +77,41 @@ const FRAMEWORK_STYLES = {
     border: "border-emerald-200",
     icon: "🌱 bg-emerald-100"
   },
-  tarot: {
-    gradient: "bg-gradient-to-br from-purple-50 to-purple-100",
-    accent: "text-purple-600",
-    border: "border-purple-200",
-    icon: "🔮 bg-purple-100"
-  },
-  mantra: {
-    gradient: "bg-gradient-to-br from-amber-50 to-amber-100",
-    accent: "text-amber-600",
-    border: "border-amber-200",
-    icon: "✨ bg-amber-100"
-  },
-  hero: {
-    gradient: "bg-gradient-to-br from-blue-50 to-blue-100",
-    accent: "text-blue-600",
-    border: "border-blue-200",
-    icon: "⚔️ bg-blue-100"
-  },
-  quest: {
-    gradient: "bg-gradient-to-br from-teal-50 to-teal-100",
-    accent: "text-teal-600",
-    border: "border-teal-200",
-    icon: "🗺️ bg-teal-100"
-  },
-  constellation: {
-    gradient: "bg-gradient-to-br from-indigo-50 to-indigo-100",
-    accent: "text-indigo-600",
-    border: "border-indigo-200",
-    icon: "✨ bg-indigo-100"
-  },
   connections: {
     gradient: "bg-gradient-to-br from-pink-50 to-pink-100",
     accent: "text-pink-600",
     border: "border-pink-200",
     icon: "🤝 bg-pink-100"
+  },
+  hiddenBlockers: {
+    gradient: "bg-gradient-to-br from-orange-50 to-orange-100",
+    accent: "text-orange-600",
+    border: "border-orange-200",
+    icon: "🚧 bg-orange-100"
+  },
+  habitOptimizer: {
+    gradient: "bg-gradient-to-br from-lime-50 to-lime-100",
+    accent: "text-lime-600",
+    border: "border-lime-200",
+    icon: "🔄 bg-lime-100"
+  },
+  lifeAlignment: {
+    gradient: "bg-gradient-to-br from-cyan-50 to-cyan-100",
+    accent: "text-cyan-600",
+    border: "border-cyan-200",
+    icon: "🧭 bg-cyan-100"
+  },
+  emotionalEnergy: {
+    gradient: "bg-gradient-to-br from-yellow-50 to-yellow-100",
+    accent: "text-yellow-600",
+    border: "border-yellow-200",
+    icon: "⚡ bg-yellow-100"
+  },
+  decisionMatrix: {
+    gradient: "bg-gradient-to-br from-gray-50 to-gray-100",
+    accent: "text-gray-600",
+    border: "border-gray-200",
+    icon: "⚖️ bg-gray-100"
   },
   custom: {
     gradient: "bg-gradient-to-br from-gray-50 to-gray-100",
@@ -184,17 +184,17 @@ export default function AIAnalysis() {
   };
 
   // Add state for cached results
-  const [cachedResults, setCachedResults] = useState<Record<AnalysisFramework, string | null>>({
+  const [cachedResults, setCachedResults] = useState<Record<AnalysisFramework, string | null>>(() => ({
     pattern: null,
     growth: null,
-    tarot: null,
-    mantra: null,
-    hero: null,
-    quest: null,
-    constellation: null,
     connections: null,
+    hiddenBlockers: null,
+    habitOptimizer: null,
+    lifeAlignment: null,
+    emotionalEnergy: null,
+    decisionMatrix: null,
     custom: null
-  });
+  }));
 
   const handleAnalyze = async () => {
     setHasAttemptedAnalysis(true);
@@ -297,7 +297,7 @@ export default function AIAnalysis() {
   };
 
   const formatAnalysis = (text: string) => {
-    // Helper function to format titles and special terms
+    // Helper function to format titles and special tesrms
     const formatSpecialTerms = (line: string) => {
       // Replace <strong>text</strong> patterns
       line = line.replace(/<\/?strong>/g, '**');
@@ -379,12 +379,12 @@ export default function AIAnalysis() {
     setCachedResults({
       pattern: null,
       growth: null,
-      tarot: null,
-      mantra: null,
-      hero: null,
-      quest: null,
-      constellation: null,
       connections: null,
+      hiddenBlockers: null,
+      habitOptimizer: null,
+      lifeAlignment: null,
+      emotionalEnergy: null,
+      decisionMatrix: null,
       custom: null
     });
     setAnalysis(null);

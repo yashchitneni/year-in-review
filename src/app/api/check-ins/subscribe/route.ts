@@ -18,11 +18,12 @@ const publicInsightsSchema = z.object({
   frameworks: z.array(z.enum([
     "pattern",
     "growth",
-    "tarot",
-    "mantra",
-    "hero",
-    "quest",
-    "constellation",
+    "connections",
+    "hiddenBlockers",
+    "habitOptimizer",
+    "lifeAlignment",
+    "emotionalEnergy",
+    "decisionMatrix",
     "custom"
   ])) as z.ZodType<AnalysisFramework[]>,
   keyInsights: z.record(z.array(z.string()))
@@ -35,11 +36,12 @@ const subscriptionSchema = z.object({
   frameworks: z.array(z.enum([
     "pattern",
     "growth",
-    "tarot",
-    "mantra",
-    "hero",
-    "quest",
-    "constellation",
+    "connections",
+    "hiddenBlockers",
+    "habitOptimizer",
+    "lifeAlignment",
+    "emotionalEnergy",
+    "decisionMatrix",
     "custom"
   ])) as z.ZodType<AnalysisFramework[]>,
   responses: encryptedDataSchema,

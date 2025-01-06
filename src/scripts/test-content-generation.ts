@@ -39,12 +39,19 @@ async function createTestSubscription(encryptionKey: Buffer): Promise<string> {
       id: "test-sub-2", // Using a different ID to avoid conflicts
       email: "test@example.com",
       frequency: "monthly",
-      frameworks: ["tarot"],
+      frameworks: [],
       lastCheckIn: null,
-      nextCheckIn: new Date("2024-02-01T09:00:00Z").toISOString(),
+      nextCheckIn: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       status: "active",
-      responses: encryptedData
+      responses: {
+        data: "",
+        iv: "",
+        authTag: "",
+        keyVersion: "",
+        encryptedAt: new Date().toISOString()
+      },
+      analysisDepth: "comprehensive"
     };
 
     // Store in KV
