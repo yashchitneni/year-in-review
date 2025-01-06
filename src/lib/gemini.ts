@@ -345,13 +345,22 @@ async function retryableAnalysis(model: any, prompt: string, data: any, attempt 
   try {
     console.log(`Analysis attempt ${attempt + 1}/${MAX_RETRIES + 1}`);
     
+    // Validate and sanitize the input data
+    const sanitizedData = JSON.parse(JSON.stringify(data, (key, value) => {
+      if (typeof value === 'string') {
+        // Replace problematic characters and normalize
+        return value.normalize('NFKC').replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+      }
+      return value;
+    }));
+
     const timeoutPromise = new Promise((_, reject) => 
       setTimeout(() => reject(new Error(`Analysis timeout after ${REQUEST_TIMEOUT/1000} seconds`)), REQUEST_TIMEOUT)
     );
 
     const analysisPromise = model.generateContent([
       { text: prompt },
-      { text: JSON.stringify(data, null, 2) }
+      { text: JSON.stringify(sanitizedData, null, 2) }
     ]);
 
     const result = await Promise.race([analysisPromise, timeoutPromise]);
@@ -360,13 +369,31 @@ async function retryableAnalysis(model: any, prompt: string, data: any, attempt 
       throw new Error('Empty response from Gemini API');
     }
 
+    // Validate the response text
+    const text = result.response.text();
+    if (!text || typeof text !== 'string') {
+      throw new Error('Invalid response format from Gemini API');
+    }
+
+    // Sanitize the response text
+    const sanitizedText = text.normalize('NFKC').replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+    if (sanitizedText !== text) {
+      console.warn('Response text required sanitization');
+    }
+
     return result as GenerateContentResult;
   } catch (error: any) {
-    console.error(`Analysis attempt ${attempt + 1} failed:`, error);
+    console.error(`Analysis attempt ${attempt + 1} failed:`, {
+      error: error.message,
+      type: error.constructor.name,
+      dataType: typeof data,
+      dataKeys: Object.keys(data),
+      attempt
+    });
     
     if (attempt < MAX_RETRIES) {
       console.log('Retrying analysis...');
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s between retries
+      await new Promise(resolve => setTimeout(resolve, 1000));
       return retryableAnalysis(model, prompt, data, attempt + 1);
     }
     
@@ -383,7 +410,8 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       framework,
       hasCustomPrompt: !!customPrompt,
       isUsingPublicKey: apiKey === process.env.NEXT_PUBLIC_GEMINI_API_KEY,
-      userName
+      userName,
+      formDataKeys: Object.keys(formData || {})
     });
 
     if (!apiKey) {
@@ -391,6 +419,15 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       return {
         success: false,
         error: "Please add your Gemini API key in the settings above. You can get one for free from Google AI Studio."
+      };
+    }
+
+    // Validate input data
+    if (!formData || typeof formData !== 'object') {
+      console.error('Invalid form data:', { type: typeof formData });
+      return {
+        success: false,
+        error: "Invalid form data provided. Please try again."
       };
     }
 
@@ -437,7 +474,7 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
     }
 
     // Replace [name] placeholder with actual name
-    prompt = prompt.replace(/\[name\]/g, userName);
+    prompt = prompt.replace(/\[name\]/g, userName.normalize('NFKC').replace(/[\u0000-\u001F\u007F-\u009F]/g, ''));
 
     // For custom prompts, provide all data
     const analysisData = framework === "custom" 
@@ -465,21 +502,34 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
       throw new Error('No response text generated');
     }
 
+    // Validate and sanitize the response
+    const sanitizedText = text.normalize('NFKC').replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+    
     // Cache the successful result
-    setCachedAnalysis(cacheKey, text);
+    setCachedAnalysis(cacheKey, sanitizedText);
     
     console.timeEnd('analysis');
     return {
       success: true,
-      analysis: text
+      analysis: sanitizedText
     };
   } catch (error: any) {
     console.timeEnd('analysis');
     console.error('Gemini API Error:', {
       message: error.message,
       type: error.constructor.name,
-      stack: error.stack
+      stack: error.stack,
+      framework,
+      hasFormData: !!formData,
+      formDataKeys: formData ? Object.keys(formData) : []
     });
+
+    if (error.message?.includes('invalid character')) {
+      return {
+        success: false,
+        error: "There was an issue processing your responses. Please check for any special characters or emojis that might be causing problems."
+      };
+    }
 
     // Check for specific error types
     if (error.message?.includes('unregistered callers') || 
@@ -508,7 +558,7 @@ export async function analyzeWithGemini({ formData, framework, customPrompt, api
     // Return a more detailed error message
     return {
       success: false,
-      error: `Analysis failed: ${error.message}. Please try again or contact support if the issue persists.`
+      error: "There was an issue generating your analysis. Please try again with simpler responses or contact support if the issue persists."
     };
   }
 }
